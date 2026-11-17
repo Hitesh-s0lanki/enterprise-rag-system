@@ -12,9 +12,9 @@ This project addresses that problem by retrieving approved document revisions, c
 
 ## Architecture
 
-![Enterprise RAG System architecture: client, agent, internal knowledge search, public web search, and controlled document updates](docs/diagrams/architecture.svg)
+![Enterprise RAG System architecture: client, agent, internal knowledge search, public web search, and controlled document updates](docs/diagrams/image.png)
 
-[Download PNG](docs/diagrams/architecture.png) · [Scalable SVG](docs/diagrams/architecture.svg)
+[Download PNG](docs/diagrams/image.png)
 
 Open the app's **Architecture** page for interactive views of [client and tools](docs/diagrams/system.html), [knowledge search](docs/diagrams/knowledge.html), and [document updates](docs/diagrams/updates.html). Download those HTML files to view them locally; GitHub displays their source.
 
