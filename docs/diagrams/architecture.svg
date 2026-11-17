@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1190" viewBox="0 0 1600 1190" role="img" aria-labelledby="title description">
+  <title id="title">Enterprise RAG System — implemented architecture</title>
+  <desc id="description">Streamlit connects to an OpenAI-powered LangChain root agent. Application-bound identity and SQLite permissions protect knowledge search, public web tools and document updates. Knowledge search reuses validated Mem0 reports or runs Pinecone dense and BM25 retrieval, reciprocal rank fusion and Jev evidence grading. Firecrawl search grades evidence and can refine queries twice. Updates stage immutable chunks, verify them and publish a catalog revision. Tool results return to the root agent for answer generation.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#52677f" stroke-width="1.6"/></marker>
+    <style>
+      text{font-family:Arial,Helvetica,sans-serif;fill:#182d47} .title{font-size:36px;font-weight:700} .subtitle{font-size:19px;fill:#52677f} .heading{font-size:22px;font-weight:700} .body{font-size:18px} .small{font-size:16px;fill:#52677f} .box{fill:white;stroke:#b9c9db;stroke-width:1.5;rx:14} .line{fill:none;stroke:#52677f;stroke-width:2;marker-end:url(#arrow)} .return{fill:none;stroke:#52677f;stroke-width:2;stroke-dasharray:6 5;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1600" height="1190" fill="#f5f8fc"/>
+  <text x="48" y="60" class="title">Enterprise RAG System</text>
+  <text x="48" y="92" class="subtitle">IT support knowledge copilot · Current implementation · Logical workflows, not deployment boundaries</text>
+
+  <rect x="48" y="124" width="360" height="115" class="box"/>
+  <text x="70" y="158" class="heading">Streamlit showcase</text>
+  <text x="70" y="188" class="body">Demo user · Chat · Evidence</text>
+  <text x="70" y="215" class="small">CLI also supports JSONL / SSE streams</text>
+  <path d="M408 180H482" class="line"/>
+  <rect x="490" y="124" width="560" height="115" rx="14" fill="#e8efff" stroke="#7397d4" stroke-width="1.5"/>
+  <text x="512" y="158" class="heading">RootAgent → BaseAgent → LangChain</text>
+  <text x="512" y="188" class="body">OpenAI generation · Explicit tool registry</text>
+  <text x="512" y="215" class="small">Bounded model/tool calls · Timeouts · AgentEvent stream</text>
+  <path d="M1050 180H1124" class="line"/>
+  <rect x="1132" y="124" width="420" height="115" class="box"/>
+  <text x="1154" y="158" class="heading">Reply to the client</text>
+  <text x="1154" y="188" class="body">Answer + cited tool evidence</text>
+  <text x="1154" y="215" class="small">Final-answer grading is not implemented</text>
+
+  <rect x="48" y="263" width="1504" height="65" rx="12" fill="#182d47"/>
+  <text x="70" y="291" font-size="19" style="fill:white;font-weight:700">Shared authorization boundary: application binds caller identity, namespace and approved revisions</text>
+  <text x="70" y="315" font-size="17" style="fill:#dbe6f5">SQLite users + permission masks + namespace scopes + document catalog ACLs · Service checks run before side effects</text>
+
+  <rect x="48" y="350" width="1504" height="257" rx="18" fill="#eef5ff" stroke="#c8daf3"/>
+  <text x="70" y="386" class="heading">01 / Internal knowledge search</text>
+  <text x="70" y="412" class="small">search_knowledge → tool report returns to the root agent; the tool does not generate the answer</text>
+  <rect x="70" y="437" width="330" height="106" class="box"/>
+  <text x="88" y="470" class="heading">Mem0 report reuse</text>
+  <text x="88" y="499" class="body">Scope · Revisions · TTL · Digest</text>
+  <text x="88" y="525" class="small">Paraphrase: Jev equivalence check</text>
+  <path d="M400 489H450" class="line"/>
+  <text x="408" y="473" class="small">miss</text>
+  <rect x="460" y="437" width="335" height="106" class="box"/>
+  <text x="478" y="470" class="heading">Pinecone hybrid search</text>
+  <text x="478" y="499" class="body">Parallel dense + BM25 searches</text>
+  <text x="478" y="525" class="small">OpenAI vectors: external or integrated</text>
+  <path d="M795 489H845" class="line"/>
+  <rect x="855" y="437" width="310" height="106" class="box"/>
+  <text x="873" y="470" class="heading">Fuse + grade evidence</text>
+  <text x="873" y="499" class="body">Weighted RRF · Deduplication</text>
+  <text x="873" y="525" class="small">Jev relevance, coverage, sufficiency</text>
+  <path d="M1165 489H1215" class="line"/>
+  <rect x="1225" y="437" width="305" height="106" class="box"/>
+  <text x="1243" y="470" class="heading">Evidence report</text>
+  <text x="1243" y="499" class="body">Sources · Grades · Metrics</text>
+  <text x="1243" y="525" class="small">Save eligible reports in Mem0</text>
+  <path d="M235 543V574H1377V550" class="return"/>
+  <rect x="465" y="559" width="650" height="29" rx="5" fill="#eef5ff"/>
+  <text x="480" y="580" class="small">Valid hit reuses saved grades; use_memory=false bypasses Mem0 entirely</text>
+
+  <rect x="48" y="628" width="1504" height="228" rx="18" fill="#edf8f6" stroke="#beddd5"/>
+  <text x="70" y="664" class="heading">02 / Optional public web search</text>
+  <text x="70" y="690" class="small">The root agent chooses this tool; internal search does not automatically invoke it</text>
+  <rect x="70" y="713" width="330" height="110" class="box"/>
+  <text x="88" y="746" class="heading">Firecrawl via MCP</text>
+  <text x="88" y="775" class="body">Search public sources</text>
+  <text x="88" y="801" class="small">Enabled with configured credentials</text>
+  <path d="M400 767H450" class="line"/>
+  <rect x="460" y="713" width="335" height="110" class="box"/>
+  <text x="478" y="746" class="heading">Search middleware</text>
+  <text x="478" y="775" class="body">Jev grades against original query</text>
+  <text x="478" y="801" class="small">Weak evidence → enhance and retry</text>
+  <path d="M795 767H845" class="line"/>
+  <text x="800" y="749" font-size="14" style="fill:#52677f">weak</text>
+  <rect x="855" y="713" width="310" height="110" class="box"/>
+  <text x="873" y="746" class="heading">Query enhancement agent</text>
+  <text x="873" y="775" class="body">OpenAI query refinement</text>
+  <text x="873" y="801" class="small">Up to 2 enhancements / 3 searches</text>
+  <path d="M1010 713V700H235V706" class="return"/>
+  <rect x="1225" y="713" width="305" height="110" class="box"/>
+  <text x="1243" y="746" class="heading">Web evidence → root</text>
+  <text x="1243" y="775" class="body">Accepted or insufficient status</text>
+  <text x="1243" y="801" class="small">Separate scrape/map tools: ungraded</text>
+  <path d="M627 823V839H1377V830" class="line"/>
+  <text x="844" y="852" font-size="13" style="fill:#52677f">Accepted or refinement exhausted</text>
+
+  <rect x="48" y="877" width="1504" height="224" rx="18" fill="#fff6e9" stroke="#e9d6b8"/>
+  <text x="70" y="913" class="heading">03 / Ingestion and controlled document maintenance</text>
+  <text x="70" y="939" class="small">Initial ingestion: UTF-8 text / Markdown → recursive splitting → OpenAI embeddings + Pinecone → trusted catalog enrollment</text>
+  <rect x="70" y="961" width="330" height="110" class="box"/>
+  <text x="88" y="994" class="heading">Read source + authorize edit</text>
+  <text x="88" y="1023" class="body">Stored reader/writer ACLs</text>
+  <text x="88" y="1049" class="small">Exact expected revision required</text>
+  <path d="M400 1015H450" class="line"/>
+  <rect x="460" y="961" width="335" height="110" class="box"/>
+  <text x="478" y="994" class="heading">Stage immutable revision</text>
+  <text x="478" y="1023" class="body">Split · Embed · Upload chunks</text>
+  <text x="478" y="1049" class="small">Old catalog head remains current</text>
+  <path d="M795 1015H845" class="line"/>
+  <rect x="855" y="961" width="310" height="110" class="box"/>
+  <text x="873" y="994" class="heading">Verify + publish</text>
+  <text x="873" y="1023" class="body">Fetch chunks · Recheck access</text>
+  <text x="873" y="1049" class="small">Atomic SQLite catalog head switch</text>
+  <path d="M1165 1015H1215" class="line"/>
+  <rect x="1225" y="961" width="305" height="110" class="box"/>
+  <text x="1243" y="994" class="heading">Subsequent queries</text>
+  <text x="1243" y="1023" class="body">Follow approved published heads</text>
+  <text x="1243" y="1049" class="small">New revision changes Mem0 context</text>
+
+  <text x="48" y="1137" class="body">Tool reports return to RootAgent for the next bounded decision and final reply. Providers run outside the application.</text>
+  <text x="48" y="1166" class="small">Current gaps: production login · Final-answer grading · Monetary budgets/cost totals · Redis cache (original proposal only)</text>
+</svg>

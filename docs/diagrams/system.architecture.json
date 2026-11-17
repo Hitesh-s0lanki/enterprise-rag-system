@@ -1,0 +1,438 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Client · Agent · Search tools",
+    "locale": "en",
+    "output": "docs/diagrams/system.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Client",
+      "sublabel": "Sends a question / receives a reply",
+      "pos": [
+        40,
+        260
+      ],
+      "size": [
+        220,
+        86
+      ]
+    },
+    {
+      "id": "agent",
+      "type": "backend",
+      "label": "Root agent",
+      "sublabel": "Chooses tools and builds the answer",
+      "pos": [
+        330,
+        260
+      ],
+      "size": [
+        220,
+        86
+      ]
+    },
+    {
+      "id": "web",
+      "type": "cloud",
+      "label": "Firecrawl web search",
+      "sublabel": "Find public web information",
+      "pos": [
+        650,
+        40
+      ],
+      "size": [
+        220,
+        86
+      ]
+    },
+    {
+      "id": "knowledge",
+      "type": "backend",
+      "label": "Search knowledge",
+      "sublabel": "query + use_memory (default true)",
+      "pos": [
+        330,
+        640
+      ],
+      "size": [
+        220,
+        86
+      ]
+    },
+    {
+      "id": "web-grade",
+      "type": "backend",
+      "label": "Jev evidence grading",
+      "sublabel": "Firecrawl tool middleware",
+      "pos": [
+        950,
+        260
+      ],
+      "size": [
+        220,
+        86
+      ]
+    },
+    {
+      "id": "query-enhancement",
+      "type": "backend",
+      "label": "Query enhancement agent",
+      "sublabel": "Weak evidence · at most 2 retries",
+      "pos": [
+        650,
+        480
+      ],
+      "size": [
+        220,
+        86
+      ]
+    },
+    {
+      "id": "knowledge-memory",
+      "type": "cloud",
+      "label": "Previously seen in Mem0?",
+      "sublabel": "Validate match, access and revisions",
+      "pos": [
+        650,
+        640
+      ],
+      "size": [
+        220,
+        86
+      ]
+    },
+    {
+      "id": "knowledge-cached-grade",
+      "type": "backend",
+      "label": "Saved Jev grading",
+      "sublabel": "Validate previously graded report",
+      "pos": [
+        950,
+        640
+      ],
+      "size": [
+        220,
+        86
+      ]
+    },
+    {
+      "id": "knowledge-pinecone",
+      "type": "database",
+      "label": "Pinecone search",
+      "sublabel": "Dense + keyword → merge rankings",
+      "pos": [
+        650,
+        840
+      ],
+      "size": [
+        220,
+        86
+      ]
+    },
+    {
+      "id": "knowledge-grade",
+      "type": "cloud",
+      "label": "Jev document grading",
+      "sublabel": "Grade fresh evidence for the query",
+      "pos": [
+        950,
+        840
+      ],
+      "size": [
+        220,
+        86
+      ]
+    },
+    {
+      "id": "knowledge-save",
+      "type": "cloud",
+      "label": "Save report in Mem0",
+      "sublabel": "Sufficient evidence only · best effort",
+      "pos": [
+        950,
+        1040
+      ],
+      "size": [
+        220,
+        86
+      ]
+    },
+    {
+      "id": "knowledge-return",
+      "type": "backend",
+      "label": "Knowledge report to root",
+      "sublabel": "Evidence + grades + cache status",
+      "pos": [
+        330,
+        1040
+      ],
+      "size": [
+        220,
+        86
+      ]
+    },
+    {
+      "id": "update-access",
+      "type": "security",
+      "label": "Document update access",
+      "sublabel": "READ + WRITE · namespace · stored ACLs",
+      "pos": [
+        40,
+        640
+      ],
+      "size": [
+        220,
+        86
+      ]
+    },
+    {
+      "id": "update-publish",
+      "type": "backend",
+      "label": "Verified document update",
+      "sublabel": "Read → revision check → verify → publish",
+      "pos": [
+        40,
+        840
+      ],
+      "size": [
+        220,
+        86
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "client-request",
+      "from": "client",
+      "to": "agent",
+      "label": "Request"
+    },
+    {
+      "id": "agent-reply",
+      "from": "agent",
+      "to": "client",
+      "label": "Final reply"
+    },
+    {
+      "id": "agent-web",
+      "from": "agent",
+      "to": "web",
+      "label": "Web query"
+    },
+    {
+      "id": "agent-knowledge",
+      "from": "agent",
+      "to": "knowledge",
+      "label": "Knowledge query"
+    },
+    {
+      "id": "web-grade-results",
+      "from": "web",
+      "to": "web-grade",
+      "label": "Retrieved evidence"
+    },
+    {
+      "id": "web-accepted",
+      "from": "web-grade",
+      "to": "agent",
+      "label": "Accepted or retry limit: results + grades"
+    },
+    {
+      "id": "web-weak",
+      "from": "web-grade",
+      "to": "query-enhancement",
+      "label": "Low grade · retries remain"
+    },
+    {
+      "id": "web-enhanced-query",
+      "from": "query-enhancement",
+      "to": "web",
+      "label": "Enhanced query → search again"
+    },
+    {
+      "id": "knowledge-memory-check",
+      "from": "knowledge",
+      "to": "knowledge-memory",
+      "label": "Look up question"
+    },
+    {
+      "id": "knowledge-memory-yes",
+      "from": "knowledge-memory",
+      "to": "knowledge-cached-grade",
+      "label": "Yes: hit",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight"
+    },
+    {
+      "id": "knowledge-memory-no",
+      "from": "knowledge-memory",
+      "to": "knowledge-pinecone",
+      "label": "No / rejected / unavailable"
+    },
+    {
+      "id": "knowledge-cached-return",
+      "from": "knowledge-cached-grade",
+      "to": "knowledge-return",
+      "label": "Return saved grading"
+    },
+    {
+      "id": "knowledge-fresh-grade",
+      "from": "knowledge-pinecone",
+      "to": "knowledge-grade",
+      "label": "Documents",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight"
+    },
+    {
+      "id": "knowledge-fresh-save",
+      "from": "knowledge-grade",
+      "to": "knowledge-save",
+      "label": "Sufficient + cache eligible"
+    },
+    {
+      "id": "knowledge-saved-return",
+      "from": "knowledge-save",
+      "to": "knowledge-return",
+      "label": "Return even if save fails"
+    },
+    {
+      "id": "knowledge-no-save",
+      "from": "knowledge-grade",
+      "to": "knowledge-return",
+      "label": "Insufficient / empty / bypass: no save"
+    },
+    {
+      "id": "knowledge-results",
+      "from": "knowledge-return",
+      "to": "agent",
+      "label": "Knowledge results"
+    },
+    {
+      "id": "knowledge-bypass",
+      "from": "knowledge",
+      "to": "knowledge-pinecone",
+      "label": "use_memory=false"
+    },
+    {
+      "id": "agent-update",
+      "from": "agent",
+      "to": "update-access",
+      "label": "Explicit edit request"
+    },
+    {
+      "id": "update-authorized",
+      "from": "update-access",
+      "to": "update-publish",
+      "label": "Allowed only"
+    },
+    {
+      "id": "update-result",
+      "from": "update-publish",
+      "to": "agent",
+      "label": "Status + revision / safe error"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Client and agent",
+      "items": [
+        "The client sends a request. The root agent selects one or both search tools.",
+        "Tools return evidence to the root agent, which prepares the final reply. Query enhancement runs only inside the Firecrawl tool."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Firecrawl cycle",
+      "items": [
+        "Firecrawl → Jev grading inside the tool middleware. Accepted evidence returns directly to the root agent.",
+        "Low grade → query enhancement agent → Firecrawl → grade again against the original query. At most two enhancements; no direct root-to-enhancement connection.",
+        "After the retry limit, return the final results and grades even when evidence remains insufficient. Scrape and map are ungraded."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Knowledge cycle",
+      "items": [
+        "Search knowledge → previously seen question in Mem0? Yes → validate and return the saved Jev-graded report. Cached documents are not regraded.",
+        "No usable match → Pinecone → Jev document grading → save eligible sufficient reports in Mem0 → return to root. Insufficient evidence returns without saving.",
+        "use_memory=false skips Mem0 reads and writes. Cache write failure preserves the fresh report."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Document updates",
+      "items": [
+        "Explicit edit → current RBAC and stored document ACLs → full-source read → revision check → upload and verify → reauthorize and publish.",
+        "Denied access stops the operation. Only a committed published status confirms the change. See Inside document updates for conflict and failure routes."
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Client",
+      "wraps": [
+        "client"
+      ],
+      "pad": 24
+    },
+    {
+      "kind": "region",
+      "label": "Root orchestration",
+      "wraps": [
+        "agent"
+      ],
+      "pad": 24
+    },
+    {
+      "kind": "region",
+      "label": "Firecrawl search tool workflow",
+      "wraps": [
+        "web",
+        "web-grade",
+        "query-enhancement"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "region",
+      "label": "Tool middleware: grade + enhance",
+      "wraps": [
+        "web-grade",
+        "query-enhancement"
+      ],
+      "pad": 16
+    },
+    {
+      "kind": "region",
+      "label": "search_knowledge tool workflow",
+      "wraps": [
+        "knowledge",
+        "knowledge-memory",
+        "knowledge-cached-grade",
+        "knowledge-pinecone",
+        "knowledge-grade",
+        "knowledge-save",
+        "knowledge-return"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "region",
+      "label": "Document update tools",
+      "wraps": [
+        "update-access",
+        "update-publish"
+      ],
+      "pad": 24
+    }
+  ]
+}

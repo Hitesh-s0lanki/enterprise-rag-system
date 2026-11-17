@@ -1,0 +1,358 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Inside search_knowledge · Routing and evidence",
+    "locale": "en",
+    "output": "docs/diagrams/knowledge.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "call",
+      "type": "backend",
+      "label": "Search knowledge",
+      "sublabel": "query + use_memory",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "preflight",
+      "type": "security",
+      "label": "Validate request",
+      "sublabel": "Access, query and approved revisions",
+      "pos": [
+        350,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "mode",
+      "type": "backend",
+      "label": "Use memory?",
+      "sublabel": "Default true / false bypasses Mem0",
+      "pos": [
+        660,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "memory",
+      "type": "cloud",
+      "label": "Previously seen question?",
+      "sublabel": "Mem0 · scoped question lookup",
+      "pos": [
+        970,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "validate",
+      "type": "security",
+      "label": "Reusable report?",
+      "sublabel": "Exact / Jev-verified paraphrase",
+      "pos": [
+        970,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "hybrid",
+      "type": "database",
+      "label": "Pinecone hybrid search",
+      "sublabel": "Dense + keyword search in parallel",
+      "pos": [
+        660,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "cached",
+      "type": "backend",
+      "label": "Cached report to agent",
+      "sublabel": "Return saved evidence + Jev grades",
+      "pos": [
+        970,
+        640
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "fusion",
+      "type": "backend",
+      "label": "Merge search rankings",
+      "sublabel": "Check chunks, deduplicate, rank",
+      "pos": [
+        660,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "grade",
+      "type": "cloud",
+      "label": "Jev document grading",
+      "sublabel": "Relevance, coverage, sufficiency",
+      "pos": [
+        660,
+        640
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "outcome",
+      "type": "backend",
+      "label": "Cache this report?",
+      "sublabel": "Memory on + sufficient + size limit",
+      "pos": [
+        350,
+        640
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "returned",
+      "type": "backend",
+      "label": "Fresh report to agent",
+      "sublabel": "Sufficient / insufficient / no docs",
+      "pos": [
+        40,
+        640
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "write",
+      "type": "cloud",
+      "label": "Best-effort Mem0 write",
+      "sublabel": "Store report + query pointer",
+      "pos": [
+        350,
+        840
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "cached-grading",
+      "type": "backend",
+      "label": "Saved Jev grading",
+      "sublabel": "Validate report · no regrading",
+      "pos": [
+        970,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "call-preflight",
+      "from": "call",
+      "to": "preflight",
+      "label": "invoke"
+    },
+    {
+      "id": "preflight-mode",
+      "from": "preflight",
+      "to": "mode",
+      "label": "allowed"
+    },
+    {
+      "id": "mode-memory",
+      "from": "mode",
+      "to": "memory",
+      "label": "true"
+    },
+    {
+      "id": "mode-bypass",
+      "from": "mode",
+      "to": "hybrid",
+      "label": "false: bypass"
+    },
+    {
+      "id": "memory-validate",
+      "from": "memory",
+      "to": "validate",
+      "label": "candidates"
+    },
+    {
+      "id": "cache-hit",
+      "from": "validate",
+      "to": "cached-grading",
+      "label": "Yes: valid hit"
+    },
+    {
+      "id": "cache-miss",
+      "from": "validate",
+      "to": "hybrid",
+      "label": "No: miss / invalid"
+    },
+    {
+      "id": "search-fusion",
+      "from": "hybrid",
+      "to": "fusion",
+      "label": "two result lists"
+    },
+    {
+      "id": "fusion-grade",
+      "from": "fusion",
+      "to": "grade",
+      "label": "ranked chunks"
+    },
+    {
+      "id": "grade-outcome",
+      "from": "grade",
+      "to": "outcome",
+      "label": "full report"
+    },
+    {
+      "id": "no-cache",
+      "from": "outcome",
+      "to": "returned",
+      "label": "no"
+    },
+    {
+      "id": "write-cache",
+      "from": "outcome",
+      "to": "write",
+      "label": "yes"
+    },
+    {
+      "id": "return-fresh",
+      "from": "write",
+      "to": "returned",
+      "label": "best effort"
+    },
+    {
+      "id": "cached-grading-return",
+      "from": "cached-grading",
+      "to": "cached",
+      "label": "Return graded report"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Memory routing",
+      "items": [
+        "use_memory=false skips all Mem0 reads and writes. A bypassed fresh report returns directly to the agent.",
+        "A cache miss, Mem0 operation error or rejected candidate triggers fresh retrieval. Invalid request or access denial stops the call."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Cache validation",
+      "items": [
+        "Exact repeats skip the equivalence model call; paraphrases require Jev to verify the same information is requested.",
+        "Check TTL, context, user scope, digest, current permissions and approved revisions. Cached content is a retrieval/grading report, not a generated answer.",
+        "A valid Mem0 hit returns saved Jev document grades; it does not run fresh document grading. Paraphrase verification grades query equivalence only."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Fresh evidence and output",
+      "items": [
+        "External mode uses OpenAI query embeddings; integrated mode embeds through Pinecone. Both dense and BM25 results are required.",
+        "Fusion deduplicates chunks and ranks them. Jev grades every returned chunk; only sufficient, validated reports within the payload limit are written to Mem0."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Return and recovery",
+      "items": [
+        "The tool returns documents, grading, source and metrics. The agent writes the final answer or chooses another bounded tool call.",
+        "Insufficient or empty evidence is returned without caching. Provider retrieval/grading errors become tool errors; a failed cache write preserves the fresh report."
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Request validation",
+      "wraps": [
+        "call",
+        "preflight",
+        "mode"
+      ],
+      "pad": 24
+    },
+    {
+      "kind": "region",
+      "label": "Mem0 cache route",
+      "wraps": [
+        "memory",
+        "validate",
+        "cached-grading",
+        "cached"
+      ],
+      "pad": 24
+    },
+    {
+      "kind": "region",
+      "label": "Fresh retrieval + grading",
+      "wraps": [
+        "hybrid",
+        "fusion",
+        "grade"
+      ],
+      "pad": 24
+    },
+    {
+      "kind": "region",
+      "label": "Save and return",
+      "wraps": [
+        "outcome",
+        "returned",
+        "write"
+      ],
+      "pad": 24
+    }
+  ]
+}

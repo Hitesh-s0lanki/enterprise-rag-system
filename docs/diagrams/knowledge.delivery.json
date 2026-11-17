@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "65529619-6c2e-4c69-871a-cec3c23f4a5e",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/Hemant/Desktop/projects/enterprise-rag-arch/docs/diagrams/knowledge.architecture.json",
+  "output": "/Users/Hemant/Desktop/projects/enterprise-rag-arch/docs/diagrams/knowledge.html",
+  "specification": {
+    "sha256": "168c2bf1c4191c15026c90eceaaacfc5fc35632b62ea2852046492e76f032849",
+    "bytes": 7623
+  },
+  "artifact": {
+    "sha256": "d01461941ed0fa97efa5023c14d37adceafb4f0440fc409a4c6e5bb56e09d5b5",
+    "bytes": 859057
+  }
+}

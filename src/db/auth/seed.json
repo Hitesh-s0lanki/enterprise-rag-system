@@ -1,0 +1,12 @@
+{
+  "roles": [
+    {"name": "employee", "permissions": 1},
+    {"name": "contributor", "permissions": 3},
+    {"name": "administrator", "permissions": 15}
+  ],
+  "users": [
+    {"id": "00000000-0000-0000-0000-000000000001", "username": "alice", "display_name": "Alice", "role": "employee", "namespaces": ["it-support"]},
+    {"id": "00000000-0000-0000-0000-000000000002", "username": "bob", "display_name": "Bob", "role": "contributor", "namespaces": ["it-support"]},
+    {"id": "00000000-0000-0000-0000-000000000003", "username": "mice", "display_name": "Mice", "role": "administrator", "namespaces": ["it-support"]}
+  ]
+}

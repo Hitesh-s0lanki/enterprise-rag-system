@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/Hemant/Desktop/projects/enterprise-rag-arch/docs/diagrams/knowledge.architecture.json",
+    "sha256": "168c2bf1c4191c15026c90eceaaacfc5fc35632b62ea2852046492e76f032849",
+    "bytes": 7623
+  },
+  "artifact": {
+    "path": "/Users/Hemant/Desktop/projects/enterprise-rag-arch/docs/diagrams/knowledge.html",
+    "sha256": "d01461941ed0fa97efa5023c14d37adceafb4f0440fc409a4c6e5bb56e09d5b5",
+    "bytes": 859057
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/tmp/rag-knowledge-boundaries/knowledge.finalize.json",
+    "summaryReceipt": "/tmp/rag-knowledge-boundaries/knowledge.finalize-summary.json",
+    "browserCheckReceipt": "/tmp/rag-knowledge-boundaries/knowledge.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-17T07:16:41.409Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2625,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

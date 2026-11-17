@@ -1,0 +1,391 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Document updates · RBAC and revision publication",
+    "locale": "en",
+    "output": "docs/diagrams/updates.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "request",
+      "type": "external",
+      "label": "Explicit edit request",
+      "sublabel": "Root resolves the target document",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "auth",
+      "type": "security",
+      "label": "RBAC + document ACL",
+      "sublabel": "READ + WRITE · namespace · stored ACLs",
+      "pos": [
+        350,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "read",
+      "type": "backend",
+      "label": "Read full source",
+      "sublabel": "get_document_for_update + revision",
+      "pos": [
+        660,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "replace",
+      "type": "backend",
+      "label": "Prepare replacement",
+      "sublabel": "Full content + expected_revision",
+      "pos": [
+        970,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "denied",
+      "type": "security",
+      "label": "Access denied",
+      "sublabel": "Stop · no initial upload or staging",
+      "pos": [
+        350,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "check",
+      "type": "security",
+      "label": "Revision / content checks",
+      "sublabel": "Recheck access · reject stale revision",
+      "pos": [
+        970,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "conflict",
+      "type": "backend",
+      "label": "Conflict: read again",
+      "sublabel": "Reassess edit against latest source",
+      "pos": [
+        660,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "unchanged",
+      "type": "backend",
+      "label": "Unchanged",
+      "sublabel": "Same source · no upload or writes",
+      "pos": [
+        660,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "stage",
+      "type": "database",
+      "label": "Stage immutable revision",
+      "sublabel": "Transaction · old head stays active",
+      "pos": [
+        970,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "upload",
+      "type": "cloud",
+      "label": "Upload new chunks",
+      "sublabel": "Embedding → Pinecone · new chunk IDs",
+      "pos": [
+        970,
+        640
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "verify",
+      "type": "security",
+      "label": "Verify every chunk",
+      "sublabel": "Fetch text, metadata + uploader ID",
+      "pos": [
+        660,
+        640
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "publish",
+      "type": "database",
+      "label": "Reauthorize and publish",
+      "sublabel": "Atomic catalog head switch",
+      "pos": [
+        350,
+        640
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "result",
+      "type": "backend",
+      "label": "Confirmed result to root",
+      "sublabel": "published + document / revision IDs",
+      "pos": [
+        40,
+        640
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "failure",
+      "type": "backend",
+      "label": "Failed or interrupted",
+      "sublabel": "Inspect head before retrying",
+      "pos": [
+        350,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ]
+    },
+    {
+      "id": "context",
+      "type": "backend",
+      "label": "Subsequent knowledge reads",
+      "sublabel": "New revision filters + Mem0 context",
+      "pos": [
+        40,
+        840
+      ],
+      "size": [
+        200,
+        76
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "request-auth",
+      "from": "request",
+      "to": "auth",
+      "label": "Edit tool call"
+    },
+    {
+      "id": "auth-read",
+      "from": "auth",
+      "to": "read",
+      "label": "Allowed"
+    },
+    {
+      "id": "auth-denied",
+      "from": "auth",
+      "to": "denied",
+      "label": "Denied"
+    },
+    {
+      "id": "read-replace",
+      "from": "read",
+      "to": "replace",
+      "label": "Full source + revision"
+    },
+    {
+      "id": "replace-check",
+      "from": "replace",
+      "to": "check",
+      "label": "update_document"
+    },
+    {
+      "id": "check-conflict",
+      "from": "check",
+      "to": "conflict",
+      "label": "Stale / busy"
+    },
+    {
+      "id": "check-unchanged",
+      "from": "check",
+      "to": "unchanged",
+      "label": "Same content"
+    },
+    {
+      "id": "check-stage",
+      "from": "check",
+      "to": "stage",
+      "label": "Changed + current"
+    },
+    {
+      "id": "stage-upload",
+      "from": "stage",
+      "to": "upload",
+      "label": "Access rechecked"
+    },
+    {
+      "id": "upload-verify",
+      "from": "upload",
+      "to": "verify",
+      "label": "Acknowledged upserts"
+    },
+    {
+      "id": "verify-publish",
+      "from": "verify",
+      "to": "publish",
+      "label": "All chunks match"
+    },
+    {
+      "id": "publish-result",
+      "from": "publish",
+      "to": "result",
+      "label": "Committed: published"
+    },
+    {
+      "id": "verify-failure",
+      "from": "verify",
+      "to": "failure",
+      "label": "Mismatch / unavailable"
+    },
+    {
+      "id": "publish-failure",
+      "from": "publish",
+      "to": "failure",
+      "label": "Revoked / failed"
+    },
+    {
+      "id": "result-context",
+      "from": "result",
+      "to": "context",
+      "label": "Follow new head"
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Document update workflow",
+      "wraps": [
+        "request",
+        "auth",
+        "read",
+        "replace",
+        "denied",
+        "check",
+        "conflict",
+        "unchanged",
+        "stage",
+        "upload",
+        "verify",
+        "publish",
+        "result",
+        "failure",
+        "context"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "region",
+      "label": "Authorization gate",
+      "wraps": [
+        "auth",
+        "denied"
+      ],
+      "pad": 16
+    },
+    {
+      "kind": "region",
+      "label": "Upload verification and publication",
+      "wraps": [
+        "upload",
+        "verify",
+        "publish"
+      ],
+      "pad": 20
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Trusted access",
+      "items": [
+        "Identity and namespace are application-bound. Every operation reads current permission bits and catalog reader/writer ACLs. Administrator document access still requires action bits and namespace scope.",
+        "An explicit request supplies intent, not permissions. Unregistered documents fail closed; tools cannot create documents or change ACLs."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Read before editing",
+      "items": [
+        "Read the full authoritative source and revision before generating a complete replacement. Search snippets cannot replace this read.",
+        "Stale revisions or a concurrent staged update cause revision_conflict. Unchanged content returns without uploads."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Publish only verified revisions",
+      "items": [
+        "Recheck authorization before upload and inside staging/publication transactions. Verify every new chunk before moving the catalog head.",
+        "Failures preserve the old head until publication succeeds and may leave orphan chunks. Interrupted results require inspection; never blindly repeat writes. Search visibility may lag publication."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Return and future reads",
+      "items": [
+        "Only status=published confirms the update. Return the document ID and old/new revision IDs to the root.",
+        "Subsequent reads follow published heads within approved scope. The revision-based Mem0 context excludes older cached reports; old data is not deleted."
+      ]
+    }
+  ]
+}

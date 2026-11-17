@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "b41e01f3-9fab-47e3-9227-fc15506692bd",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/Hemant/Desktop/projects/enterprise-rag-arch/docs/diagrams/updates.architecture.json",
+  "output": "/Users/Hemant/Desktop/projects/enterprise-rag-arch/docs/diagrams/updates.html",
+  "specification": {
+    "sha256": "56f48778148d1c6bb794621811fea6c2897beca983476035ff099f5ff7697d11",
+    "bytes": 8311
+  },
+  "artifact": {
+    "sha256": "a5ccca45b698cd8de61f1f1f74ee708e6d2c2c5e5b1f287868bd6f74f9d41af3",
+    "bytes": 863979
+  }
+}
