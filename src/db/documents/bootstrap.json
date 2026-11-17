@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "actor_id": "00000000-0000-0000-0000-000000000003",
+  "settings": {
+    "index_name": "enterprise-it-knowledge",
+    "namespace": "it-support",
+    "embedding_model": "text-embedding-3-small",
+    "embedding_dimensions": 1536,
+    "chunk_size": 1000,
+    "chunk_overlap": 150,
+    "batch_size": 64,
+    "cloud": "aws",
+    "region": "us-east-1"
+  },
+  "documents": [
+    {
+      "document_id": "57a9001142daa27db00b2509f5932970b443f190865e3891840fbde2d63ca8c6",
+      "revision_id": "4b4adbb6dc486018e8e306416e5e0aa6065be381fecb715fe9a2063c9f71a8cc",
+      "content": "# NovaRetail Internal IT Support Handbook\n\n## VPN Access\n\nEmployees working outside the office must use the company VPN before accessing internal systems. Install the NovaSecure VPN client from the internal Software Portal. Sign in with your company email and password, complete MFA, and select the closest corporate api gateway for your connection. If the connection fails, first confirm internet connectivity, restart the client, and try another corporate gateway. Do not disable endpoint security or firewall settings to make the VPN work. If the problem remains, open an IT ticket with a screenshot of the error.\n\n## Password Reset Policy\n\nCompany passwords must be at least 14 characters. Employees should use the self-service identity portal for normal password resets. After five failed login attempts, the account may be temporarily locked. If self-service recovery fails, contact IT Service Desk. Employees must never share passwords or MFA codes with support personnel.\n\n## Multi-Factor Authentication\n\nMFA is mandatory for email, VPN, cloud administration, and other protected company systems. The approved methods are the company authenticator app and registered hardware security keys. SMS should only be used when explicitly enabled as a recovery method.\n\n## Software Installation\n\nEmployees should install business software only from the company Software Portal. Requests for software not listed in the portal require manager approval and IT security review. Administrator access is not granted simply to install unapproved applications.\n\n## Lost or Stolen Laptop\n\nImmediately report a lost or stolen company laptop to the IT Service Desk and your manager. Provide the device asset tag if available and the last known location. IT will initiate device lock/wipe procedures and coordinate with Security. Do not attempt to remotely recover the device yourself.\n",
+      "metadata": {
+        "allowed_roles": [
+          "administrator",
+          "contributor",
+          "employee"
+        ],
+        "document_id": "57a9001142daa27db00b2509f5932970b443f190865e3891840fbde2d63ca8c6",
+        "file_name": "company_it_handbook.md",
+        "file_sha256": "70a36005b470eec9fa48c13552c7bd98039207bad062dec350e4e3e227c3ea86",
+        "file_type": ".md",
+        "ingested_at": "2026-11-17T10:09:59.568702Z",
+        "last_updated_at": "2026-11-17T10:09:59.568702Z",
+        "last_updated_at_epoch": 1794910199.568702,
+        "last_updated_at_source": "authenticated_edit",
+        "last_updated_by": "mice",
+        "source": "company_it_handbook.md"
+      },
+      "reader_roles": [
+        "administrator",
+        "contributor",
+        "employee"
+      ],
+      "writer_roles": [
+        "administrator",
+        "contributor"
+      ]
+    },
+    {
+      "document_id": "edd49cbd843866a867d2052c0a2d3fab30da8af9da38a4ab92a257d62bddc17c",
+      "revision_id": "ece0c48d08bb123e9a7eb866234480472f1edd89a69e1d3148fb2aa94fc77cd9",
+      "content": "# IT Service Desk Runbook\n\n## Email Troubleshooting\n\nIf a user cannot send or receive email, confirm whether the issue affects one user or many users. Check network connectivity and the service status dashboard. For a single user, sign out and back in, verify mailbox quota, and test the web client. For widespread incidents, do not ask each user to reinstall software; escalate the suspected service incident.\n\n## Laptop Performance\n\nFor a slow laptop, first check CPU, memory, storage free space, startup applications, operating system updates, and endpoint security scan status. Do not disable security agents as a troubleshooting shortcut. Escalate when hardware diagnostics report failure or repeated shutdowns continue after software remediation.\n\n## Ticket Priority\n\nP1: company-wide outage or critical security incident. P2: major team blocked with no workaround. P3: individual user blocked or degraded with limited workaround. P4: standard request, information request, or low-impact issue.\n",
+      "metadata": {
+        "allowed_roles": [
+          "administrator",
+          "contributor",
+          "employee"
+        ],
+        "document_id": "edd49cbd843866a867d2052c0a2d3fab30da8af9da38a4ab92a257d62bddc17c",
+        "file_name": "service_desk_runbook.md",
+        "file_sha256": "30e3f5d85edca5f7aaf43ae9dea7d50c6afc686c5d9812861b4a03924ae0aa73",
+        "file_type": ".md",
+        "ingested_at": "2026-11-16T15:48:38.806107Z",
+        "last_updated_at": "2026-11-16T11:27:06.733519Z",
+        "last_updated_at_epoch": 1794828426.733519,
+        "last_updated_at_source": "filesystem_mtime",
+        "last_updated_by": "mice",
+        "source": "service_desk_runbook.md"
+      },
+      "reader_roles": [
+        "administrator",
+        "contributor",
+        "employee"
+      ],
+      "writer_roles": [
+        "administrator",
+        "contributor"
+      ]
+    }
+  ]
+}

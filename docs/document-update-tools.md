@@ -28,7 +28,10 @@ embeddings nor Pinecone and create no revision record.
 
 ## Explicit catalog setup
 
-Existing Pinecone documents are not automatically registered as editable. Their
+The Streamlit app restores the two explicitly approved demo revisions from its
+trusted bootstrap manifest after verifying their Pinecone chunks; see
+[startup recovery](streamlit-app.md). Existing catalog heads and ACLs are preserved.
+Other existing Pinecone documents are not automatically registered as editable. Their
 full source, intended published revision and reader/writer ACL must be approved
 and enrolled by trusted maintainer code. This is necessary because the prior
 ingestion flow had no authoritative source catalog or edit ACL registry.

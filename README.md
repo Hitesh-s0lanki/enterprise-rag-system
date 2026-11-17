@@ -112,9 +112,9 @@ Pinecone must have a compatible hybrid schema; legacy vector-only indexes are re
 uv run --locked streamlit run src/app/main.py
 ```
 
-Open the local URL printed by Streamlit. Startup initializes SQLite auth and catalog tables and seeds demo users once, preserving later changes. It does not upload documents or call external providers. Live questions and ingestion can incur provider charges.
+Open the local URL printed by Streamlit. Startup initializes SQLite auth and catalog tables and seeds demo users once, preserving later changes. When demo document registrations are missing, it verifies the approved manifest's exact chunks in Pinecone and restores the catalog automatically. Startup never uploads or embeds documents; provider reads occur only for missing registrations. Live questions and ingestion can incur provider charges. See [startup recovery](docs/streamlit-app.md) for configuration and verification rules.
 
-An empty catalog disables chat. To enable knowledge queries, ingest your documents and enroll their verified revisions as described below. The Architecture page is available without provider calls.
+An empty catalog disables chat. The two approved demo revisions are restored automatically when they exist in the configured Pinecone index and namespace. For other documents, ingest and enroll their verified revisions as described below. The Architecture page is available without provider calls.
 
 ### Prepare and publish knowledge
 

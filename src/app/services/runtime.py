@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from src.agents import RootAgent
 from src.data_ingestion.config import IngestionSettings
+from src.data_ingestion.bootstrap import bootstrap_catalog
 from src.db.auth import AuthorizationService, Permission, SQLiteUserRepository, User, initialize_database
 from src.db.documents.repository import SQLiteDocumentRepository, initialize_document_catalog
 from src.query.pipeline import KnowledgeQueryService
@@ -21,11 +22,14 @@ class AppRuntime:
         knowledge = IngestionSettings.from_env()
         # Both initializers are additive and repeatable. The auth seed runs only
         # once, preserving later user/permission edits and published revisions.
+        # Missing demo revisions are recovered separately after provider verification.
         path = initialize_database()
         initialize_document_catalog(path)
         users = SQLiteUserRepository(path)
-        return cls(users, AuthorizationService(users), SQLiteDocumentRepository(users.path),
-                   knowledge)
+        authorization = AuthorizationService(users)
+        catalog = SQLiteDocumentRepository(users.path)
+        bootstrap_catalog(catalog, authorization, knowledge)
+        return cls(users, authorization, catalog, knowledge)
 
     def revisions(self) -> dict[str, str]:
         return self.catalog.approved_revisions(self.knowledge.namespace)

@@ -16,6 +16,7 @@ from src.app.components.sidebar import render_sidebar
 from src.app.components.suggestions import render_suggestions
 from src.app.services.conversation import restore_turns
 from src.app.services.runtime import AppRuntime
+from src.data_ingestion.bootstrap import CatalogBootstrapError
 from src.utils.logger import configure_logging
 
 
@@ -27,6 +28,9 @@ def render_copilot():
     st.session_state.setdefault("turns", [])
     try:
         runtime = AppRuntime.from_env()
+    except CatalogBootstrapError as exc:
+        st.error(str(exc))
+        st.stop()
     except (OSError, sqlite3.Error):
         st.error("Local database initialization failed. Check that AUTH_DB_PATH points to a writable "
                  "SQLite file location and that the database is accessible.")

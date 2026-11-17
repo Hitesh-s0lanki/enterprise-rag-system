@@ -78,7 +78,8 @@ class AppTests(unittest.TestCase):
         self.path = Path(self.directory.name) / "auth.sqlite3"
         initialize_database(self.path)
         initialize_document_catalog(self.path)
-        self.environment = patch.dict(os.environ, {"AUTH_DB_PATH": str(self.path), "PINECONE_NAMESPACE": "it-support"})
+        self.environment = patch.dict(os.environ, {"AUTH_DB_PATH": str(self.path), "PINECONE_NAMESPACE": "it-support",
+                                                  "CATALOG_BOOTSTRAP_ENABLED": "false"})
         self.environment.start()
 
     def tearDown(self):
