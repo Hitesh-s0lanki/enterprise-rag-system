@@ -122,10 +122,41 @@ class HybridRetrievalTests(unittest.TestCase):
         self.assertAlmostEqual(docs[0].metadata["retrieval"]["rrf_score"], 1 / 61)
 
     def test_raw_score_scale_cannot_dominate_rank_fusion(self):
-        self.rankings = {"dense_vector": [hit(score=0.0001)],
+        self.rankings = {"dense_vector": [hit(score=0.4)],
                          "text": [hit(DOC_B, REV_B, score=999999)]}
         docs = self.retrieve().documents
         self.assertEqual(docs[0].metadata["retrieval"]["rrf_score"], docs[1].metadata["retrieval"]["rrf_score"])
+
+    def test_cosine_cutoff_is_inclusive_and_applies_before_fusion(self):
+        self.rankings["dense_vector"] = [hit(number=0, score=0.299), hit(number=1, score=0.3)]
+        result = self.retrieve()
+        self.assertEqual([d.id for d in result.documents], [hit(number=1).id])
+        self.assertEqual(result.metrics["dense_candidates_filtered"], 1)
+        self.assertEqual(result.metrics["min_cosine_similarity"], 0.3)
+        self.assertAlmostEqual(result.documents[0].metadata["retrieval"]["rrf_score"], 0.5 / 61)
+
+    def test_weak_dense_match_can_still_qualify_through_keyword_search(self):
+        self.rankings = {"dense_vector": [hit(score=0.1)], "text": [hit(score=12)]}
+        result = self.retrieve()
+        self.assertEqual(len(result.documents), 1)
+        self.assertEqual(result.documents[0].metadata["retrieval"]["signals"], {
+            "keyword": {"rank": 1, "raw_score": 12},
+        })
+
+    def test_missing_nonfinite_or_out_of_range_dense_scores_are_excluded(self):
+        for score in (None, float("nan"), float("inf"), -1.1, 1.1, True, "0.8"):
+            with self.subTest(score=score):
+                self.rankings["dense_vector"] = [hit(score=score)]
+                self.assertEqual(self.retrieve().documents, [])
+
+    def test_cosine_cutoff_settings_validation_and_environment(self):
+        for cutoff in (float("nan"), float("inf"), -1.01, 1.01):
+            with self.subTest(cutoff=cutoff), self.assertRaises(ValueError):
+                RetrievalSettings(min_cosine_similarity=cutoff)
+        for cutoff in (-1, 0, 1):
+            self.assertEqual(RetrievalSettings(min_cosine_similarity=cutoff).min_cosine_similarity, cutoff)
+        with patch.dict("os.environ", {"RETRIEVAL_MIN_COSINE_SIMILARITY": "0.65"}, clear=True):
+            self.assertEqual(RetrievalSettings.from_env().min_cosine_similarity, 0.65)
 
     def test_unknown_inactive_and_out_of_scope_users_do_not_call_providers(self):
         for actor_id in (UUID(int=99), self.alice.id):
@@ -186,7 +217,7 @@ class HybridRetrievalTests(unittest.TestCase):
             knowledge=self.knowledge, settings=self.settings, embedding_mode="integrated",
         )
         def search(**kwargs):
-            result = response([hit()])
+            result = response([hit(score=0.1), hit(number=1, score=0.8)])
             if kwargs["score_by"][0]["type"] == "embed":
                 self.assertEqual(kwargs["score_by"][0]["fields"], ["chunk_text"])
                 self.assertEqual(kwargs["score_by"][0]["query"], "VPN")
@@ -194,7 +225,10 @@ class HybridRetrievalTests(unittest.TestCase):
             return result
         self.index.documents.search.side_effect = search
         result = service.retrieve("VPN", actor_id=self.alice.id, approved_revisions={DOC_A: REV_A})
-        self.assertEqual(len(result.documents), 1)
+        self.assertEqual(len(result.documents), 2)
+        self.assertEqual(result.metrics["dense_candidates_filtered"], 1)
+        weak = next(d for d in result.documents if d.id == hit().id)
+        self.assertEqual(set(weak.metadata["retrieval"]["signals"]), {"keyword"})
         self.assertEqual(result.metrics["embedding_input_tokens_actual"], 7)
         self.assertIsNone(result.metrics["embedding_latency_ms"])
         self.embedder.embed_query.assert_not_called()

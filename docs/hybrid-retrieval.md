@@ -11,7 +11,10 @@ The reference repository's [dense/sparse notebook](https://github.com/Hitesh-s0l
 3. Use the same OpenAI embedding model and dimensions as ingestion. For an external-vector index, generate the query vector directly; for an integrated index, send an `embed` clause over `chunk_text` so Pinecone generates it. The CLI detects the mode from the validated schema.
 4. Search Pinecone dense vectors and BM25 text concurrently, with identical access, revision and embedding-provenance filters.
 5. Validate each returned candidate again against current user permissions, approved revisions and embedding provenance.
-6. Merge the rankings with weighted RRF, retain the top chunks, and recheck output access before returning them.
+6. Exclude dense candidates with missing, nonfinite or out-of-range cosine scores, or scores below `RETRIEVAL_MIN_COSINE_SIMILARITY` (default `0.3`, inclusive). This applies to both external-vector and integrated embedding searches.
+7. Merge the remaining rankings with weighted RRF, retain the top chunks, and recheck output access before returning them.
+
+The cosine cutoff applies only to the dense branch. BM25 scores use a different scale, so keyword matches remain independently eligible, including chunks rejected by the dense cutoff. A keyword-only chunk may have no measured cosine score in the fetched dense candidates. This is not a minimum cosine guarantee for every final chunk. The cutoff is an initial setting that needs tuning against representative queries; Jev evidence grading remains a separate step.
 
 For each chunk, fusion adds `dense_weight / (rrf_k + dense_rank)` and `(1 - dense_weight) / (rrf_k + keyword_rank)` for the rankings where it appears. Ranks start at 1. Raw BM25 and dense scores are retained for inspection but are not averaged. Duplicate IDs within one ranking contribute once. Ties are resolved by chunk ID for reproducible results.
 
@@ -46,6 +49,7 @@ The CLI reads the same `AUTH_DB_PATH`, `PINECONE_INDEX_NAME`, `PINECONE_NAMESPAC
 | `RETRIEVAL_TOP_K` | `5` | Maximum number of final chunks. |
 | `RETRIEVAL_CANDIDATE_K` | `20` | Candidates fetched per signal; at least `top_k`, at most 200. |
 | `RETRIEVAL_DENSE_WEIGHT` | `0.7` | Semantic weight; strictly between 0 and 1. Keyword weight is the remainder. |
+| `RETRIEVAL_MIN_COSINE_SIMILARITY` | `0.3` | Inclusive minimum dense cosine score before fusion; finite value from -1 to 1. Does not filter BM25 matches. |
 | `RETRIEVAL_RRF_K` | `60` | Positive RRF smoothing constant. |
 | `RETRIEVAL_TIMEOUT_SECONDS` | `30` | Timeout for each Pinecone search request. |
 | `RETRIEVAL_MAX_QUERY_CHARACTERS` | `4000` | Input character limit, configurable from 1 to 4000. |
@@ -68,6 +72,7 @@ Each returned chunk includes its citation/source metadata, filename, last update
 - `embedding_latency_ms` and individual dense/keyword search latencies. Separate embedding latency is `null` for integrated mode because it cannot be isolated from the search.
 - `total_latency_ms`: service time including authorization and embedding.
 - One embedding call, two search calls, candidate counts and returned chunk count.
+- `min_cosine_similarity`: applied dense cutoff. `dense_candidates_filtered`: otherwise valid dense candidates excluded by score validation or the cutoff. `dense_candidates` counts the survivors.
 - `embedding_input_tokens_estimated`: local tokenizer estimate, not a billed provider count. Actual token usage is reported from integrated search when Pinecone supplies it; otherwise it is `null`.
 - Reported Pinecone read units summed across both searches; `null` if not reported.
 - `estimated_cost` remains `null`; no pricing is invented or assumed.

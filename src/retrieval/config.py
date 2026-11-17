@@ -13,8 +13,12 @@ class RetrievalSettings:
     rrf_k: int = 60
     timeout_seconds: float = 30
     max_query_characters: int = 4000
+    min_cosine_similarity: float = 0.3
 
     def __post_init__(self):
+        if (not math.isfinite(self.min_cosine_similarity)
+            or not -1 <= self.min_cosine_similarity <= 1):
+            raise ValueError("min_cosine_similarity must be finite and between -1 and 1")
         if not 1 <= self.top_k <= self.candidate_k <= 200:
             raise ValueError("Require 1 <= top_k <= candidate_k <= 200")
         if not math.isfinite(self.dense_weight) or not 0 < self.dense_weight < 1:
@@ -35,4 +39,5 @@ class RetrievalSettings:
             rrf_k=int(os.getenv("RETRIEVAL_RRF_K", "60")),
             timeout_seconds=float(os.getenv("RETRIEVAL_TIMEOUT_SECONDS", "30")),
             max_query_characters=int(os.getenv("RETRIEVAL_MAX_QUERY_CHARACTERS", "4000")),
+            min_cosine_similarity=float(os.getenv("RETRIEVAL_MIN_COSINE_SIMILARITY", "0.3")),
         )

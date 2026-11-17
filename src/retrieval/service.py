@@ -148,6 +148,12 @@ class HybridRetrievalService:
             dense_response, dense_ms = dense_future.result()
             keyword_response, keyword_ms = keyword_future.result()
         dense = self._checked_documents(dense_response, actor_id, revisions)
+        dense_before_cutoff = len(dense)
+        # Only dense scores are cosine similarities; BM25 has a different scale.
+        dense = [document for document in dense
+                 if isinstance(score := document.metadata["retrieval_raw_score"], (int, float))
+                 and not isinstance(score, bool) and math.isfinite(score)
+                 and -1 <= score <= 1 and score >= self.settings.min_cosine_similarity]
         keyword = self._checked_documents(keyword_response, actor_id, revisions)
         documents = fuse_rankings(dense, keyword, self.settings)
         # Recheck current user state even when there were no candidates to validate.
@@ -178,5 +184,7 @@ class HybridRetrievalService:
             ),
             "pinecone_read_units": sum(read_units) if all(v is not None for v in read_units) else None,
             "dense_candidates": len(dense), "keyword_candidates": len(keyword),
+            "min_cosine_similarity": self.settings.min_cosine_similarity,
+            "dense_candidates_filtered": dense_before_cutoff - len(dense),
             "returned_chunks": len(documents), "estimated_cost": None,
         })
